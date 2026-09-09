@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#17335d" />
+    <meta name="gaoji-tracker" content="v1" />
+    <title>稿迹 · 投稿追踪</title>
+    <link rel="icon" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="稿迹首页">
+        <span class="brand-mark">稿</span>
+        <strong>稿迹</strong><small>PAPER TRAIL</small>
+      </a>
+      <button id="syncButton" class="quiet-button"><span id="syncDot" class="dot"></span><span id="syncText">等待投稿系统同步</span></button>
+    </header>
+
+    <main>
+      <section class="heading">
+        <div><span class="eyebrow">YOUR RESEARCH, IN VIEW</span><h1>每一篇投稿，都有迹可循。</h1><p>集中查看投稿状态；登录出版社投稿系统后，插件自动记录列表中的最新进度。</p></div>
+        <button id="addButton" class="primary-button">＋ 添加投稿</button>
+      </section>
+
+      <nav class="modebar" aria-label="数据模式">
+        <strong>我的投稿 <span id="myCount">0</span></strong>
+        <span id="privacyText">记录仅保存在当前浏览器，不跨设备公开</span>
+      </nav>
+
+      <section id="stats" class="stats"></section>
+
+      <div class="workgrid">
+        <section class="panel">
+          <div class="panel-head"><h2>投稿列表 <span id="listCount">0</span></h2><input id="search" type="search" placeholder="搜索标题、期刊或稿件编号" /></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>稿件</th><th>状态</th><th>投稿日期</th><th></th></tr></thead><tbody id="paperRows"></tbody></table>
+          </div>
+          <div id="empty" class="empty" hidden>还没有投稿记录。点击“添加投稿”开始。</div>
+        </section>
+        <aside class="next-card"><span class="eyebrow">NEXT UP</span><h2>下一步</h2><div id="nextTask"></div><p>状态数据保存在当前浏览器。浏览器插件只读取稿件编号、标题、状态和日期，不读取投稿密码。</p></aside>
+      </div>
+    </main>
+
+    <dialog id="paperDialog">
+      <form id="paperForm" method="dialog">
+        <div class="dialog-head"><div><span class="eyebrow">NEW RECORD</span><h2 id="dialogTitle">添加投稿</h2></div><button type="button" data-close class="icon-button" aria-label="关闭">×</button></div>
+        <input type="hidden" name="id" />
+        <label>稿件标题<input name="title" required maxlength="500" /></label>
+        <div class="two"><label>期刊<input name="journal" required maxlength="160" /></label><label>出版社<select name="publisher"><option>Elsevier</option><option>Taylor &amp; Francis</option><option>Springer Nature</option><option>其他</option></select></label></div>
+        <div class="two"><label>稿件编号<input name="number" maxlength="80" /></label><label>投稿日期<input name="submitted" type="date" required /></label></div>
+        <div class="two"><label>当前状态<select name="status"><option>已投稿</option><option>编辑处理中</option><option>同行评审</option><option>等待决定</option><option>需要返修</option><option>已接收</option><option>已拒稿</option><option>已撤稿</option></select></label><label>系统原文<input name="raw" maxlength="120" placeholder="例如 Under Review" /></label></div>
+        <label>投稿系统网址<input name="url" type="url" placeholder="https://…" /></label>
+        <div class="dialog-actions"><button type="button" data-close class="secondary-button">取消</button><button id="saveButton" class="primary-button">保存记录</button></div>
+      </form>
+    </dialog>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
