@@ -1,4 +1,4 @@
-const DEFAULT_SITE='https://journal-tracker-whl-0909.lovely-fig-1475.chatgpt.site/';
+const DEFAULT_SITE='https://gaoji-journal-track.de5.net/';
 const input=document.getElementById('site-url');
 const message=document.getElementById('message');
 chrome.storage.local.get(['gaojiPublisherSync','gaojiOmegaSync','gaojiTrackerUrl'],result=>{

@@ -15,6 +15,8 @@
 
 `extension` 文件夹是 Chrome/Edge 浏览器插件。首次发布网站后，在扩展管理页以“加载已解压的扩展程序”方式安装，再点击插件图标填写发布后的新网址。登录出版社的官方投稿系统并打开稿件列表后，插件会自动记录页面上显示的稿件状态。
 
+当前插件默认连接 `https://gaoji-journal-track.de5.net/`，也可以在插件弹窗中改成其他部署地址。
+
 插件会读取 Taylor & Francis 页面中的阶段时间线；在 Elsevier Editorial Manager 中，会分别读取 `Initial Date Submitted` 和 `Status Date`。
 
 网站记录默认保存在浏览器本地，不会上传到公开仓库，也不会让其他访问者看到。不同设备之间需要账户和后端数据库才能同步。

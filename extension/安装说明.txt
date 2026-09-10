@@ -3,7 +3,7 @@
 1. 打开 Chrome 或 Edge 的“扩展程序”页面。
 2. 开启“开发者模式”，选择“加载已解压的扩展程序”。
 3. 选择本 extension 文件夹。
-4. 点击浏览器工具栏中的“稿迹 · 投稿状态同步”，把“稿迹网址”改成你发布后的网址并保存。
+4. 插件默认连接 https://gaoji-journal-track.de5.net/ 。如需使用其他部署地址，可点击浏览器工具栏中的“稿迹 · 投稿状态同步”修改并保存。
 5. 登录 Elsevier、Taylor & Francis 或 Springer Nature 的投稿系统，打开包含稿件编号和状态的作者列表页。Taylor & Francis 的阶段时间线会自动展开并记录；Elsevier 会分别读取“Initial Date Submitted”和“Status Date”。
 6. 返回稿迹网站，即可看到同步结果。
 
