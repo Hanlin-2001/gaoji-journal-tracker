@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "稿迹 · 投稿状态同步",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "从 Elsevier、Taylor & Francis、Springer Nature 投稿系统读取当前稿件状态并同步到稿迹。",
   "permissions": ["storage", "tabs", "scripting"],
   "host_permissions": [

@@ -4,7 +4,7 @@ const message=document.getElementById('message');
 chrome.storage.local.get(['gaojiPublisherSync','gaojiOmegaSync','gaojiTrackerUrl'],result=>{
   const payload=result.gaojiPublisherSync||result.gaojiOmegaSync;
   input.value=result.gaojiTrackerUrl||DEFAULT_SITE;
-  document.getElementById('status').textContent=payload?.syncedAt?`最近同步 ${Array.isArray(payload.manuscripts)?payload.manuscripts.length:0} 篇：${new Date(payload.syncedAt).toLocaleString()}`:'尚未同步。请进入 Omega 作者工作台并打开稿件状态列表。';
+  document.getElementById('status').textContent=payload?.syncedAt?`最近同步 ${Array.isArray(payload.manuscripts)?payload.manuscripts.length:0} 篇：${new Date(payload.syncedAt).toLocaleString()}`:'尚未同步。请登录出版社投稿系统并打开稿件状态列表。';
 });
 async function saveSite(){
   try{

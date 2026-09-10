@@ -4,7 +4,7 @@
 2. 开启“开发者模式”，选择“加载已解压的扩展程序”。
 3. 选择本 extension 文件夹。
 4. 插件默认连接 https://gaoji-journal-track.de5.net/ 。如需使用其他部署地址，可点击浏览器工具栏中的“稿迹 · 投稿状态同步”修改并保存。
-5. 登录 Elsevier、Taylor & Francis 或 Springer Nature 的投稿系统，打开包含稿件编号和状态的作者列表页。Taylor & Francis 的阶段时间线会自动展开并记录；Elsevier 会分别读取“Initial Date Submitted”和“Status Date”。
+5. 登录 Elsevier、Taylor & Francis 或 Springer Nature 的投稿系统，打开包含稿件编号和状态的作者列表页。Taylor & Francis 的阶段时间线会自动展开，并分别读取稿件卡片中的标题、期刊、状态和每个阶段日期；Elsevier 会分别读取“Initial Date Submitted”和“Status Date”。
 6. 返回稿迹网站，即可看到同步结果。
 
-当前支持 Editorial Manager、Taylor & Francis Submission Portal、ScholarOne Manuscripts、Springer Nature “Your research”及 Nature 投稿页面。插件只读取稿件编号、期刊、标题、状态和页面日期，并保存在本机浏览器扩展存储中。它不会读取、保存或上传投稿密码。
+当前版本：0.4.0。支持 Editorial Manager、Taylor & Francis Submission Portal、ScholarOne Manuscripts、Springer Nature “Your research”及 Nature 投稿页面。插件只读取稿件编号、期刊、标题、状态和页面日期，并保存在本机浏览器扩展存储中。它不会读取、保存或上传投稿密码。

@@ -86,6 +86,10 @@ function dedupeEvents(events) {
   });
 }
 
+function sortEvents(events) {
+  return dedupeEvents(events).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+}
+
 function publisher() {
   const host = location.hostname.toLowerCase();
   const sample = clean(document.body?.innerText).slice(0, 15000).toLowerCase();
@@ -98,11 +102,13 @@ function publisher() {
 function journal() {
   const meta = document.querySelector('meta[name="citation_journal_title"],meta[property="og:site_name"]')?.content;
   if (clean(meta)) return clean(meta).slice(0, 160);
+  const genericHeadings = /^(my articles?|author dashboard|submissions?|manuscripts?|submission portal|dashboard)$/i;
   const heading = [...document.querySelectorAll('h1,.journal-title,[class*="journalTitle"],[class*="journal-title"]')]
     .map((element) => clean(element.textContent))
-    .find((value) => value.length > 2 && value.length < 160);
+    .find((value) => value.length > 2 && value.length < 160 && !genericHeadings.test(value));
   if (heading) return heading;
-  return clean(document.title).replace(/\s*[|–—-]\s*(Editorial Manager|ScholarOne Manuscripts|Submission Portal|Springer Nature).*$/i, '').slice(0, 160) || '投稿系统';
+  const title = clean(document.title).replace(/\s*[|–—-]\s*(Editorial Manager|ScholarOne Manuscripts|Submission Portal|Springer Nature|Taylor\s*&\s*Francis).*$/i, '');
+  return title && !genericHeadings.test(title) ? title.slice(0, 160) : '未知期刊';
 }
 
 function manuscriptNumber(text) {
@@ -157,18 +163,54 @@ function collectEditorialManager() {
 
 function collectTaylorPortal() {
   if (!location.hostname.toLowerCase().includes('tandfonline')) return [];
-  const candidates = [...document.querySelectorAll('article,[class*="article"],[class*="submission"],[class*="manuscript"]')];
+  const labels = ['SUBMISSION', 'TITLE', 'JOURNAL', 'STATUS'];
+  const exactLabels = (root, label) => [...root.querySelectorAll('*')].filter((element) => clean(element.textContent).toUpperCase() === label && ![...element.children].some((child) => clean(child.textContent).toUpperCase() === label));
+  const hasLabel = (root, label) => exactLabels(root, label).length > 0;
+  const bestValue = (element) => clean(element?.getAttribute?.('title') || element?.getAttribute?.('data-original-title') || element?.getAttribute?.('aria-label') || element?.textContent);
+  function valueFor(root, label) {
+    const labelElement = exactLabels(root, label)[0];
+    if (!labelElement) return '';
+    const forbidden = new Set(labels);
+    const candidates = [];
+    for (let sibling = labelElement.nextElementSibling; sibling; sibling = sibling.nextElementSibling) candidates.push(bestValue(sibling));
+    if (labelElement.parentElement) {
+      const children = [...labelElement.parentElement.children];
+      const index = children.indexOf(labelElement);
+      for (const child of children.slice(index + 1)) candidates.push(bestValue(child));
+      const parentText = clean(labelElement.parentElement.textContent);
+      if (parentText.toUpperCase().startsWith(label)) candidates.push(clean(parentText.slice(label.length)));
+      for (let sibling = labelElement.parentElement.nextElementSibling; sibling; sibling = sibling.nextElementSibling) candidates.push(bestValue(sibling));
+    }
+    return candidates.find((value) => value && !forbidden.has(value.toUpperCase()) && !/^charges$/i.test(value)) || '';
+  }
+  const candidates = [];
+  for (const submissionLabel of exactLabels(document, 'SUBMISSION')) {
+    let root = submissionLabel.parentElement;
+    while (root && root !== document.body) {
+      const text = clean(root.textContent);
+      if (text.length > 20 && text.length < 12000 && labels.every((label) => hasLabel(root, label)) && exactLabels(root, 'SUBMISSION').length === 1) {
+        candidates.push(root);
+        break;
+      }
+      root = root.parentElement;
+    }
+  }
   const found = new Map();
-  for (const root of candidates) {
+  for (const root of [...new Set(candidates)]) {
     const text = clean(root.textContent);
-    if (!/\bSUBMISSION\b/i.test(text) || !/\bTITLE\b/i.test(text) || !/\bJOURNAL\b/i.test(text) || !/\bSTATUS\b/i.test(text)) continue;
-    const number = text.match(/\bSUBMISSION\s+([A-Z0-9][A-Z0-9._/-]{4,50})\b/i)?.[1] || manuscriptNumber(text);
-    const title = text.match(/\bTITLE\s+(.+?)\s+JOURNAL\b/i)?.[1] || '';
-    const journalName = text.match(/\bJOURNAL\s+(.+?)\s+STATUS\b/i)?.[1] || journal();
-    const rawStatus = statusIn(text.match(/\bSTATUS\s+(.+?)(?:\s+CHARGES\b|\s+SUBMISSION\b|$)/i)?.[1] || text);
+    const numberValue = valueFor(root, 'SUBMISSION');
+    const titleValue = valueFor(root, 'TITLE');
+    const journalValue = valueFor(root, 'JOURNAL');
+    const statusValue = valueFor(root, 'STATUS');
+    const number = manuscriptNumber(`Submission ${numberValue}`) || numberValue.match(/[A-Z0-9][A-Z0-9._/-]{4,50}/i)?.[0] || '';
+    const title = titleValue || text.match(/\bTITLE\s+(.+?)\s+JOURNAL\b/i)?.[1] || '';
+    const parsedJournal = journalValue || text.match(/\bJOURNAL\s+(.+?)\s+STATUS\b/i)?.[1] || '';
+    const journalName = /^(my articles?|unknown journal|未知期刊)$/i.test(clean(parsedJournal)) ? '' : clean(parsedJournal);
+    const rawStatus = statusIn(statusValue) || statusIn(text.match(/\bSTATUS\s+(.+?)(?:\s+CHARGES\b|\s+SUBMISSION\b|$)/i)?.[1] || '');
     if (!number || !title || !rawStatus) continue;
-    const events = timelineFromText(text);
-    const item = { publisher: 'Taylor & Francis', journal: clean(journalName).slice(0, 160), number, title: clean(title).slice(0, 500), rawStatus, initialSubmitted: events[0]?.date || '', statusDate: events.at(-1)?.date || '', events, pageUrl: location.href };
+    const events = sortEvents(timelineFromText(text));
+    const matchingStatusEvent = [...events].reverse().find((event) => event.rawStatus.toLowerCase() === rawStatus.toLowerCase());
+    const item = { publisher: 'Taylor & Francis', journal: (journalName || '未知期刊').slice(0, 160), number, title: clean(title).slice(0, 500), rawStatus, initialSubmitted: events[0]?.date || '', statusDate: matchingStatusEvent?.date || events.at(-1)?.date || '', events, pageUrl: location.href };
     const prior = found.get(number);
     if (!prior || item.events.length > prior.events.length) found.set(number, item);
   }
@@ -203,7 +245,8 @@ function collectGeneric() {
 }
 
 function collect() {
-  const exact = [...collectEditorialManager(), ...collectTaylorPortal()];
+  if (location.hostname.toLowerCase().includes('tandfonline')) return collectTaylorPortal();
+  const exact = collectEditorialManager();
   if (exact.length) return exact;
   return collectGeneric();
 }
@@ -244,7 +287,13 @@ async function scan() {
   const merged = new Map((payload.manuscripts || []).map((item) => [`${item.publisher}|${item.journal}|${item.number}`.toLowerCase(), item]));
   for (const item of incoming) {
     const key = `${item.publisher}|${item.journal}|${item.number}`.toLowerCase();
-    const existing = merged.get(key);
+    let existing = merged.get(key);
+    for (const [priorKey, priorItem] of merged) {
+      if (priorItem.publisher === item.publisher && String(priorItem.number).toLowerCase() === String(item.number).toLowerCase()) {
+        existing = existing || priorItem;
+        if (priorKey !== key) merged.delete(priorKey);
+      }
+    }
     item.events = dedupeEvents([...(existing?.events || []), ...(item.events || [])]);
     merged.set(key, { ...existing, ...item });
   }
