@@ -1,6 +1,6 @@
 # 稿迹（Paper Trail）
 
-一个可独立部署的投稿状态追踪网站，支持手动记录、编辑和删除投稿信息，以及 Elsevier、Taylor & Francis、Springer Nature 投稿系统的浏览器插件同步。
+一个可独立部署的投稿状态追踪网站，支持手动记录、编辑和删除投稿信息，以及 Elsevier、Taylor & Francis、Springer Nature 投稿系统的浏览器插件同步。投稿数据只保存在用户自己的浏览器中，不使用云端账户或数据库。
 
 ## 发布到 GitHub Pages
 
@@ -17,7 +17,9 @@
 
 当前插件默认连接 `https://gaoji-journal-track.de5.net/`，也可以在插件弹窗中改成其他部署地址。
 
-插件会读取 Taylor & Francis 页面中的阶段时间线；在 Elsevier Editorial Manager 中，会分别读取 `Initial Date Submitted` 和 `Status Date`。
+插件会从 Taylor & Francis 的稿件卡片中分别读取期刊、标题、当前状态和展开后的阶段时间线，不再把页面标题 `My Articles` 当作期刊名；在 Elsevier Editorial Manager 中，会分别读取 `Initial Date Submitted` 和 `Status Date`。网站不会在官方页面缺少日期时自动填入当天日期。
+
+网站把正在投稿和已经结束的论文分区显示。同名论文向不同期刊投稿时，会自动合并到同一个论文卡片下，并按时间展示每次投稿历程。
 
 网站记录默认保存在浏览器本地，不会上传到公开仓库，也不会让其他访问者看到。不同设备之间需要账户和后端数据库才能同步。
 
